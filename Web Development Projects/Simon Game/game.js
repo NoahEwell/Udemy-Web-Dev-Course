@@ -4,25 +4,27 @@ var gamePattern = [];
 var userClickedPattern = [];
 var level = 0;
 var gameActive = false;
+var originalH1 = $("h1").text();
 
 /**
- * Plays the next sequence in the simon game
+ * Plays the next sequence in the simon game. Function is marked as async since it sleeps (taking time) to show the pattern.
  */
-function nextSequence() {
+async function nextSequence() {
     $("h1").text("Level: " + level);
+    await sleep(1000);
     level++;
+    userClickedPattern = [];
     var randomColor = buttonColors[randomNumberGenerator()];
     gamePattern.push(randomColor);
-    gamePattern.push("blue");
-    gamePattern.push("green");
-    for (var i=0; i<gamePattern.length; i++) {
-        animatePress(gamePattern[i]);
+    for (var i=0; i<gamePattern.length; i++) { 
         playSound(gamePattern[i]);
-        setTimeout(function() {}, 100);
+        $("." + gamePattern[i]).addClass("flash");
+        setTimeout(function() {
+            $("." + gamePattern[i]).removeClass("flash");
+        }, 100);
+        await sleep(500);
     }
 }
-
-
 
 /**
  * Gets random number between 0-3 (inclusive)
@@ -64,7 +66,29 @@ $(".btn").on("click", function() {
     userClickedPattern.push(userChosenColor);
     playSound(userChosenColor);
     animatePress(userChosenColor);
+    compareArrays();
 });
+
+/**
+ * Compares arrays gamePattern and userClickedPattern to see if they match.
+ */
+function compareArrays() {
+    if (userClickedPattern.length === gamePattern.length) {
+        if (JSON.stringify(userClickedPattern) === JSON.stringify(gamePattern)) {
+            nextSequence();
+        }
+        else {
+            gameOver();
+        }
+    }
+    else {
+        for (var i=0; i < userClickedPattern.length; i++) {
+            if (userClickedPattern[i] !== gamePattern[i]) {
+                gameOver();
+            }
+        }
+    }
+}
 
 /**
  * Animates a button press
@@ -76,10 +100,41 @@ function animatePress(currentColor) {
     }, 100);
 }
 
-// Detecting Keyboard Press
+// Detecting Keyboard Press to start game
 addEventListener("keydown", function() {
     if (gameActive === false) {
         gameActive = true;
         nextSequence();
     }
 });
+
+/**
+ * Sleeps asynchronously. Must be used like "await sleep(ms);".
+ */
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Ends the game.
+ */
+function gameOver() {
+    $("body").addClass("game-over");
+    $("h1").html("Game Over!<br><small>Press a key or refresh to restart!</small>");
+    var gameOverAudio = new Audio("./sounds/wrong.mp3");
+    gameOverAudio.play();
+    setTimeout(function() {
+        $("body").removeClass("game-over");
+    }, 500);
+    startOver();
+}
+
+/**
+ * Initializes variables to default values to allow the game to restart.
+ */
+function startOver() {
+    gamePattern = [];
+    userClickedPattern = [];
+    level = 0;
+    gameActive = false;
+}

@@ -47,6 +47,11 @@ body {
   background-color: yellow;
 }
 
+.flash {
+  background-color: black;
+  border: 10px solid white;
+}
+
 .pressed {
   box-shadow: 0 0 20px white;
   background-color: grey;
