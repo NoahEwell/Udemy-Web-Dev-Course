@@ -17,9 +17,10 @@ inquirer
     }
   ])
   .then((answers) => {
+    var fileName = "qr-url.png";
     var qrPng = qr.image(answers.userURL, { type: 'png'});
-    qrPng.pipe(fs.createWriteStream('qr-url.png'));
-    console.log("A QR code has been created for you and stored in qr-url.png.");
+    qrPng.pipe(fs.createWriteStream(fileName));
+    console.log("A QR code has been created for you and stored in " + fileName + ".");
     fs.writeFile("userInput.txt", answers.userURL, (err) => {
         if (err) throw err;
         console.log("Your response has been recorded to userInput.txt.");
