@@ -1,2 +1,2 @@
 exclude:
-  - Web Development Projects/Backend
+  - Web Development Projects/Backend/**/node_modules
